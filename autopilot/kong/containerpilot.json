@@ -1,0 +1,12 @@
+{
+  "consul": "consul:8500",
+  "services": [
+    {
+      "name": "kong",
+      "port": 8001,
+      "health": "/usr/bin/curl --fail -s http://localhost:8001/status",
+      "poll": 3,
+      "ttl": 10
+    }
+  ]
+}
