@@ -13,17 +13,18 @@ http {
     default_type  application/octet-stream;
     charset UTF-8;
 
+    {{ if service "kong" }}
     upstream kong-8000 {
         least_conn;
         {{range service "kong"}}
         server {{.Address}}:8000 max_fails=3 fail_timeout=60 weight=1;{{end}}
     }
-
     upstream kong-8001 {
         least_conn;
         {{range service "kong"}}
         server {{.Address}}:8001 max_fails=3 fail_timeout=60 weight=1;{{end}}
     }
+    {{ end }}
 
     server {
         listen       80;
@@ -35,6 +36,7 @@ http {
         }
     }
 
+    {{ if service "kong" }}
     server {
         listen       8000;
         location / {
@@ -48,8 +50,9 @@ http {
             proxy_pass http://kong-8001;
         }
     }
+    {{ end }}
 }
-
+{{ if service "kong" }}
 stream {
     upstream kong-8443 {
         least_conn;
@@ -62,3 +65,4 @@ stream {
         proxy_pass kong-8443;
     }
 }
+{{ end }}

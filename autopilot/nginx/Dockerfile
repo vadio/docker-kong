@@ -18,15 +18,13 @@ RUN export CP_SHA1=a4dd6bc001c82210b5c33ec2aa82d7ce83245154 \
     && rm /tmp/containerpilot.tar.gz
 
 # add ContainerPilot configuration and onChange handler
-COPY containerpilot.json /etc/containerpilot/
-COPY reload-nginx.sh /bin
-
-RUN chmod +x /bin/reload-nginx.sh
+COPY containerpilot.json /etc/containerpilot/containerpilot.json
+COPY reload-nginx.sh /bin/reload-nginx.sh
 
 # add Nginx virtualhost configuration
 COPY nginx.conf /etc/nginx/nginx.conf
 
 # add Nginx virtualhost template that we'll overwrite
-COPY nginx.conf.ctmpl /etc/containerpilot/
+COPY nginx.conf.ctmpl /etc/containerpilot/nginx.conf.ctmpl
 
-EXPOSE 80 8000 8443 8001 
+EXPOSE 8000 8443 8001
