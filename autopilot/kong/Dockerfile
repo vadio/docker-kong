@@ -13,6 +13,6 @@ RUN export CP_SHA1=a4dd6bc001c82210b5c33ec2aa82d7ce83245154 \
 COPY containerpilot.json /etc/containerpilot.json
 ENV CONTAINERPILOT=file:///etc/containerpilot.json
 
-CMD ./setup.sh && /bin/containerpilot kong start
+CMD /bin/containerpilot kong start
 
 EXPOSE 8000 8443 8001 7946

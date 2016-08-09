@@ -1,33 +1,20 @@
 user nginx;
 worker_processes auto;
 
-error_log  /var/log/nginx/error.log warn;
-pid        /var/run/nginx.pid;
+error_log /var/log/nginx/error.log warn;
+pid /var/run/nginx.pid;
 
 events {
-    worker_connections  1024;
+    worker_connections 65536;
 }
 
 http {
-    include       /etc/nginx/mime.types;
-    default_type  application/octet-stream;
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
     charset UTF-8;
 
-    {{ if service "kong" }}
-    upstream kong-8000 {
-        least_conn;
-        {{range service "kong"}}
-        server {{.Address}}:8000 max_fails=3 fail_timeout=60 weight=1;{{end}}
-    }
-    upstream kong-8001 {
-        least_conn;
-        {{range service "kong"}}
-        server {{.Address}}:8001 max_fails=3 fail_timeout=60 weight=1;{{end}}
-    }
-    {{ end }}
-
     server {
-        listen       80;
+        listen 80;
         location /health {
             # requires http_stub_status_module
             stub_status;
@@ -35,34 +22,17 @@ http {
             deny all;
         }
     }
-
-    {{ if service "kong" }}
-    server {
-        listen       8000;
-        location / {
-            proxy_pass http://kong-8000;
-        }
-    }
-
-    server {
-        listen       8001;
-        location / {
-            proxy_pass http://kong-8001;
-        }
-    }
-    {{ end }}
 }
-{{ if service "kong" }}
+
 stream {
-    upstream kong-8443 {
-        least_conn;
-        {{range service "kong"}}
-        server {{.Address}}:8443 max_fails=3 fail_timeout=60 weight=1;{{end}}
-    }
-
+    {{range services}}
+    upstream {{.Name}} {
+        least_conn;{{range service .Name}}
+        server {{.Address}}:{{.Port}} max_fails=3 fail_timeout=60 weight=1;{{else}}server 0.0.0.1; # invalid placeholder{{end}}
+    }{{range $index, $element := service .Name}}{{if eq $index 0}}
     server {
-        listen 8443;
-        proxy_pass kong-8443;
+        listen {{.Port}};
+        proxy_pass {{.Name}};
     }
+    {{end}}{{end}}{{end}}
 }
-{{ end }}
