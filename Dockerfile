@@ -1,4 +1,4 @@
-FROM centos:7
+FROM krallin/centos-tini:7
 MAINTAINER Marco Palladino, marco@mashape.com
 
 ENV KONG_VERSION 0.8.3
@@ -9,7 +9,7 @@ RUN yum install -y https://github.com/Mashape/kong/releases/download/$KONG_VERSI
 COPY config.docker/kong.yml /etc/kong/
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
-ENTRYPOINT ["/docker-entrypoint.sh"]
+ENTRYPOINT ["/usr/local/bin/tini", "--", "/docker-entrypoint.sh"]
 
 EXPOSE 8000 8443 8001 7946
 CMD ["kong", "start"]
