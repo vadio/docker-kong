@@ -1,4 +1,4 @@
-FROM centos:7
+FROM krallin/centos-tini:7
 MAINTAINER Marco Palladino, marco@mashape.com
 
 ENV KONG_VERSION 0.7.0
@@ -10,6 +10,8 @@ RUN yum install -y https://github.com/Mashape/kong/releases/download/$KONG_VERSI
 VOLUME ["/etc/kong/"]
 
 COPY config.docker/kong.yml /etc/kong/kong.yml
+
+ENTRYPOINT ["/usr/local/bin/tini", "--"]
 
 CMD kong start
 
